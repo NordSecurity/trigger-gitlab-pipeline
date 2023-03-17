@@ -1,0 +1,31 @@
+{
+  "name": "trigger-gitlab-pipeline",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NordSecurity/trigger-gitlab-pipeline.git"
+  },
+  "keywords": [],
+  "author": "Nord Security",
+  "contributors": [
+    {
+      "name": "Ernestas Kulik",
+      "email": "ernestas@nordsec.com"
+    }
+  ],
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/NordSecurity/trigger-gitlab-pipeline/issues"
+  },
+  "homepage": "https://github.com/NordSecurity/trigger-gitlab-pipeline#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/github": "^5.1.1",
+    "@actions/http-client": "^2.1.0"
+  }
+}
