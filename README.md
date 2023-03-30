@@ -20,6 +20,8 @@ This action triggers a pipeline for a specified project and ref at a specified G
 
 **Required** A trigger token for the GitLab project.
 
+Instructions on creating tokens: https://docs.gitlab.com/ee/ci/triggers/#create-a-trigger-token
+
 ## Outputs
 
 None.
