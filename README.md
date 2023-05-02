@@ -31,7 +31,7 @@ None.
 ```yaml
 uses: NordSecurity/trigger-gitlab-pipeline@v1
 with:
-  ci-api-v4-url: 'https://gitlab.com/api/v4'
+  ci-api-v4-url: 'https://gitlab.com/api/v4/'
   project-id: '1'
   ref: 'main'
   token: 'glptt-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
