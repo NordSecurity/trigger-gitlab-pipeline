@@ -23,7 +23,7 @@ async function main() {
     const apiUrl = core.getInput('ci-api-v4-url', { required: true });
     const id = core.getInput('project-id', { required: true });
     const ref = core.getInput('ref', { required: true });
-    const token = core.getInput('token', { required: true });
+    const token = core.getSecret('token', { required: true });
 
     const client = new http.HttpClient();
     const url = new URL(`projects/${id}/trigger/pipeline`, apiUrl);
