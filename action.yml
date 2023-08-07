@@ -13,6 +13,10 @@ inputs:
   token:
     description: 'GitLab API access token'
     required: true
+  schedule:
+    description: 'Indication if it is a automatically scheduled request'
+    required: false
+    default: false
 runs:
   using: 'node16'
   main: 'index.js'
