@@ -24,6 +24,7 @@ async function main() {
     const id = core.getInput('project-id', { required: true });
     const ref = core.getInput('ref', { required: true });
     const token = core.getInput('token', { required: true });
+    const schedule = core.getBooleanInput('schedule', { required: false });
 
     const client = new http.HttpClient();
     const url = new URL(`projects/${id}/trigger/pipeline`, apiUrl);
@@ -34,6 +35,7 @@ async function main() {
     url.searchParams.append('variables[GITHUB_REF_TYPE]', process.env.GITHUB_REF_TYPE);
     url.searchParams.append('variables[GITHUB_REPO]', `${repo.repo}`);
     url.searchParams.append('variables[GITHUB_SHA]', sha);
+    url.searchParams.append('variables[GITHUB_SCHEDULE]', schedule);
 
     let res;
     try {
