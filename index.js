@@ -49,6 +49,11 @@ async function main() {
         core.setFailed(`API request failed with code ${res.message.statusCode}`);
         return;
     }
+
+    const body = await res.readBody();
+    const obj = JSON.parse(body);
+
+    core.notice(obj.id);
 }
 
 main();
