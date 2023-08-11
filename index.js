@@ -29,6 +29,9 @@ async function main() {
     const client = new http.HttpClient();
     const url = new URL(`projects/${id}/trigger/pipeline`, apiUrl);
 
+    core.info(`GITHUB_REF_NAME: ${process.env.GITHUB_REF_NAME}`);
+    core.info(`GITHUB_REF_TYPE: ${process.env.GITHUB_REF_TYPE}`);
+
     url.searchParams.append('token', token);
     url.searchParams.append('ref', ref);
     url.searchParams.append('variables[GITHUB_REF_NAME]', process.env.GITHUB_REF_NAME);
@@ -49,6 +52,11 @@ async function main() {
         core.setFailed(`API request failed with code ${res.message.statusCode}`);
         return;
     }
+
+    const body = await res.readBody();
+    const obj = JSON.parse(body);
+
+    core.notice(obj.id);
 }
 
 main();
