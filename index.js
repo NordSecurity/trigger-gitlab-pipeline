@@ -11,6 +11,8 @@ async function main() {
             sha = github.context.payload.pull_request.head.sha;
         case "push":
             break;
+        case "schedule":
+            break;
 
         default:
             core.debug('Not a push event, bailing out');
