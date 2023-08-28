@@ -4,19 +4,26 @@ inputs:
   ci-api-v4-url:
     description: 'GitLab API v4 root URL'
     required: true
+  access-token:
+    description: 'GitLab API access token'
+    required: true
+  trigger-token:
+    description: 'GitLab API trigger token'
+    required: true
   project-id:
     description: 'GitLab project ID'
     required: true
-  ref:
-    description: 'GitLab project ref'
-    required: true
-  token:
-    description: 'GitLab API access token'
+  triggered-ref:
+    description: 'GitLab project ref to trigger'
     required: true
   schedule:
     description: 'Indication if it is a automatically scheduled request'
     required: false
     default: false
+  cancel-outdated-pipelines:
+    description: 'If set to true, it will cancel previous pipelines that are running for the same github ref'
+    required: false
+    default: true
 runs:
   using: 'node16'
   main: 'index.js'
