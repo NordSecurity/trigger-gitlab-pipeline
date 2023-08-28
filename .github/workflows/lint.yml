@@ -1,0 +1,13 @@
+name: Lint
+on: push
+permissions: {}
+
+jobs:
+  eslint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Npm install
+        run: npm install
+      - name: Run eslint
+        run: npx eslint ./index.js
