@@ -115,15 +115,32 @@ async function execute (inputConfig, githubConfig) {
     return resp.id;
 }
 
+function getEnv (name) {
+    const val = process.env[name] || '';
+    if (!val) {
+        throw new Error(`Environment variable expected, but not supplied: ${name}`);
+    }
+    return val;
+}
+
+function getBooleanEnv (name) {
+    const trueValue = ['true', 'True', 'TRUE'];
+    const falseValue = ['false', 'False', 'FALSE'];
+    const val = getEnv(name);
+    if (trueValue.includes(val)) return true;
+    if (falseValue.includes(val)) return false;
+    throw new TypeError(`Input could not be converted to boolean value: ${name}`);
+}
+
 async function main () {
     const inputConfig = {
-        apiUrl: core.getInput('ci-api-v4-url', { required: true }),
-        accesToken: core.getInput('access-token', { required: true }),
-        triggerToken: core.getInput('trigger-token', { required: true }),
-        projectId: core.getInput('project-id', { required: true }),
-        triggeredRef: core.getInput('triggered-ref', { required: true }),
-        schedule: core.getBooleanInput('schedule', { required: false }),
-        cancelOutdatedPipelines: core.getBooleanInput('cancel-outdated-pipelines', { required: false })
+        apiUrl: getEnv('CI_API_V4_URL'),
+        accesToken: getEnv('ACCESS_TOKEN'),
+        triggerToken: getEnv('TRIGGER_TOKEN'),
+        projectId: getEnv('PROJECT_ID'),
+        triggeredRef: getEnv('TRIGGERED_REF'),
+        schedule: getBooleanEnv('SCHEDULE'),
+        cancelOutdatedPipelines: getBooleanEnv('CANCEL_OUTDATED_PIPELINES')
     };
 
     const githubConfig = {

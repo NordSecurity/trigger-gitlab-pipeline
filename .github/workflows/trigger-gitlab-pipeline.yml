@@ -1,0 +1,77 @@
+name: Trigger GitLab pipeline
+on:
+  workflow_call:
+    inputs:
+      triggered-ref:
+        description: 'GitLab project ref to trigger'
+        required: true
+        type: string
+      schedule:
+        description: 'Indication if it is a automatically scheduled request'
+        required: false
+        default: false
+        type: boolean
+      cancel-outdated-pipelines:
+        description: 'If set to true, it will cancel previous pipelines that are running for the same github ref'
+        required: false
+        default: true
+        type: boolean
+    secrets:
+      ci-api-v4-url:
+        description: 'GitLab API v4 root URL'
+        required: true
+      access-token:
+        description: 'GitLab API access token'
+        required: true
+      trigger-token:
+        description: 'GitLab API trigger token'
+        required: true
+      project-id:
+        description: 'GitLab project ID'
+        required: true
+
+jobs:
+  authorize-and-resolve-workflow-ref:
+    environment:  ${{ (github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository) &&
+      'External' || 'Internal' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Authorization confirmation
+        run: echo "Authorized the job to run" # This step will only execute if
+                                              # the pipeline has necessary approvals to run
+      - name: Resolve Workflow Version
+        uses: canonical/get-workflow-version-action@a5d53b08d254a157ea441c9819ea5002ffc12edc
+        id: workflow-ref
+        with:
+          repository-name: NordSecurity/trigger-gitlab-pipeline
+          file-name: trigger-gitlab-pipeline.yml
+    outputs:
+      workflow-ref: ${{ steps.workflow-ref.outputs.sha }}
+
+  trigger-gitlab-pipeline:
+    needs: [authorize-and-resolve-workflow-ref]
+    runs-on: [self-hosted, gitlab]
+    steps:
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4.2.1
+        with:
+          repository: NordSecurity/trigger-gitlab-pipeline
+          ref: ${{ needs.authorize-and-resolve-workflow-ref.outputs.workflow-ref }}
+      - uses: actions/setup-node@0a44ba7841725637a19e28fa30b79a866c81b0a6 # v4.0.4
+        with:
+          node-version: 20
+      - name: Dependencies install
+        run: npm install
+      - name: Run triggering script
+        run: node index.js
+        env:
+          TRIGGERED_REF: ${{ inputs.triggered-ref }}
+          SCHEDULE: ${{ inputs.schedule }}
+          CANCEL_OUTDATED_PIPELINES: ${{ inputs.cancel-outdated-pipelines }}
+          CI_API_V4_URL: ${{ secrets.ci-api-v4-url }}
+          ACCESS_TOKEN: ${{ secrets.access-token }}
+          TRIGGER_TOKEN: ${{ secrets.trigger-token }}
+          PROJECT_ID: ${{ secrets.project-id }}
+
+
+
