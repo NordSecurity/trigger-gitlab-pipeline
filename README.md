@@ -2,7 +2,7 @@
 
 This action triggers a pipeline for a specified project and ref at a specified GitLab instance.
 
-## Inputs
+## Required Secrets
 
 ### `ci-api-v4-url`
 
@@ -24,6 +24,8 @@ Instructions on creating trigger tokens: https://docs.gitlab.com/ee/ci/triggers/
 
 **Required** The ID of the project for which a pipeline shall be started.
 
+## Inputs
+
 ### `triggered-ref`
 
 **Required** The ref of the project for which a pipeline shall be started.
@@ -40,16 +42,50 @@ Instructions on creating trigger tokens: https://docs.gitlab.com/ee/ci/triggers/
 
 None.
 
-## Example usage
+## Usage
+
+In order to make use of this triggering workflow, there are two steps:
+1. Setup deployment environments
+2. Call the workflow
+
+### Setting up the deployment environments
+In order to correctly use this triggering workflow - one is required to create deployment environments called `External` and `Internal` for their project.
+`External` environment corresponds for contributions from 3rd-party companies or developers.
+This deployment environment should have protection rules configured to provide a limited list of github users who an approve the workflow run.
+
+`Internal` environment represents contributions from internal members of the organization. Therefore no additional environment protection rules are required.
+
+In order to setup these environments, go to your project `settings`, then `Environments`.
+Click on the button called "New environment", and name the first environment `Internal`, later repeat the process, for the environment called `External`.
+
+![Creating Environments](img/creating-environments.png)
+
+
+Later select the `External` environment, and mark the tick box called `Required reviewers`.
+In the list of reviewers - add the usernames of github accounts for who should have workflow approving rights.
+It is common to add project-owning team to this list. Then, for good measure, select "prevent self-review".
+
+![Configuring External Environment](img/configuring-external-environment.png)
+
+
+### Calling the workflow
+
+In order to call this workflow, assuming secrets are stored as github secrets with the capitalized names - specify the following job in your workflow:
 
 ```yaml
-uses: NordSecurity/trigger-gitlab-pipeline@v2
-with:
-  ci-api-v4-url: 'https://gitlab.com/api/v4/'
-  access-token: 'glpat-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-  trigger-token: 'glptt-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
-  project-id: '1'
-  triggered-ref: 'main'
+jobs:
+  trigger-gitlab-pipeline:
+    uses: NordSecurity/trigger-gitlab-pipeline/.github/workflows/trigger-gitlab-pipeline.yml@<git sha of this repository>
+    secrets:
+      ci-api-v4-url: ${{ secrets.CI_API_V4_URL }}
+      access-token: ${{ secrets.GITLAB_API_TOKEN }}
+      trigger-token: ${{ secrets.TOKEN }}
+      project-id: ${{ secrets.PROJECT_ID }}
+    with:
+      schedule: ${{ github.event_name == 'schedule' }}
+      cancel-outdated-pipelines: ${{ github.ref_name != 'main' }}
+      triggered-ref: <reference in the gitlab project to trigger>
+
 ```
 
 # Developement
