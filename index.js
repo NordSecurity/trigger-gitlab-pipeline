@@ -157,6 +157,7 @@ async function main () {
         break;
     case 'push':
     case 'schedule':
+    case 'merge_group':
         break;
     default:
         throw new Error(`Unsupported triggering event: ${github.context.eventName}`);
