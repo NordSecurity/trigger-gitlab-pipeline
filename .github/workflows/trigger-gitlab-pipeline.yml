@@ -49,6 +49,8 @@ jobs:
         with:
           repository-name: NordSecurity/trigger-gitlab-pipeline
           file-name: trigger-gitlab-pipeline.yml
+          # Only required for private repositories
+          github-token: ${{ secrets.github-token }}
     outputs:
       workflow-ref: ${{ steps.workflow-ref.outputs.sha }}
 
