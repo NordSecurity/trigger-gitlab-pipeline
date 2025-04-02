@@ -41,7 +41,7 @@ jobs:
         run: echo "Authorized the job to run" # This step will only execute if
                                               # the pipeline has necessary approvals to run
       - name: Resolve Workflow Version
-        uses: canonical/get-workflow-version-action@a5d53b08d254a157ea441c9819ea5002ffc12edc
+        uses: canonical/get-workflow-version-action@88281a62e96e1c0ef4df30352ae0668a9f3e3369
         id: workflow-ref
         with:
           repository-name: NordSecurity/trigger-gitlab-pipeline
