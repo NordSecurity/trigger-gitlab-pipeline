@@ -123,6 +123,10 @@ function getEnv (name) {
     return val;
 }
 
+function getOptionalEnv (name) {
+    return process.env[name] || '';
+}
+
 function getBooleanEnv (name) {
     const trueValue = ['true', 'True', 'TRUE'];
     const falseValue = ['false', 'False', 'FALSE'];
@@ -140,7 +144,8 @@ async function main () {
         projectId: getEnv('PROJECT_ID'),
         triggeredRef: getEnv('TRIGGERED_REF'),
         schedule: getBooleanEnv('SCHEDULE'),
-        cancelOutdatedPipelines: getBooleanEnv('CANCEL_OUTDATED_PIPELINES')
+        cancelOutdatedPipelines: getBooleanEnv('CANCEL_OUTDATED_PIPELINES'),
+        githubShaOverride: getOptionalEnv('GITHUB_SHA_OVERRIDE')
     };
 
     const githubConfig = {
@@ -157,6 +162,10 @@ async function main () {
         break;
     case 'push':
     case 'schedule':
+        if (inputConfig.githubShaOverride) {
+            githubConfig.githubSha = inputConfig.githubShaOverride;
+        }
+        break;
     case 'merge_group':
         break;
     default:

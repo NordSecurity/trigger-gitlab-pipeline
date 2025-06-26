@@ -16,6 +16,11 @@ on:
         required: false
         default: true
         type: boolean
+      github-sha-override:
+        description: "Option to override the SHA"
+        required: false
+        type: string
+        default: ""
     secrets:
       ci-api-v4-url:
         description: 'GitLab API v4 root URL'
@@ -72,6 +77,4 @@ jobs:
           ACCESS_TOKEN: ${{ secrets.access-token }}
           TRIGGER_TOKEN: ${{ secrets.trigger-token }}
           PROJECT_ID: ${{ secrets.project-id }}
-
-
-
+          GITHUB_SHA_OVERRIDE: ${{ inputs.github-sha-override }}
