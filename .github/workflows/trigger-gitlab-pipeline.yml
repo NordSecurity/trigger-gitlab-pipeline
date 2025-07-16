@@ -51,6 +51,7 @@ jobs:
         with:
           repository-name: NordSecurity/trigger-gitlab-pipeline
           file-name: trigger-gitlab-pipeline.yml
+          github-token: ${{ secrets.GITHUB_TOKEN }}
     outputs:
       workflow-ref: ${{ steps.workflow-ref.outputs.sha }}
 
