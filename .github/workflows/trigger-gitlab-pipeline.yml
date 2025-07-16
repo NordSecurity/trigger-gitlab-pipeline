@@ -34,6 +34,9 @@ on:
       project-id:
         description: 'GitLab project ID'
         required: true
+      github-token:
+        description: 'GitHub token required only for private repositories'
+        required: false
 
 jobs:
   authorize-and-resolve-workflow-ref:
@@ -51,6 +54,8 @@ jobs:
         with:
           repository-name: NordSecurity/trigger-gitlab-pipeline
           file-name: trigger-gitlab-pipeline.yml
+          # Only required for private repositories
+          github-token: ${{ secrets.github-token }}
     outputs:
       workflow-ref: ${{ steps.workflow-ref.outputs.sha }}
 
