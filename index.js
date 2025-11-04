@@ -14,7 +14,7 @@ class GitlabClient {
     async request (method, url, data) {
         let res;
 
-        url.searchParams.append('access_token', this.inputConfig.accesToken);
+        url.searchParams.append('access_token', this.inputConfig.accessToken);
 
         if (method === 'GET') {
             res = await this.client.get(url);
@@ -139,7 +139,7 @@ function getBooleanEnv (name) {
 async function main () {
     const inputConfig = {
         apiUrl: getEnv('CI_API_V4_URL'),
-        accesToken: getEnv('ACCESS_TOKEN'),
+        accessToken: getEnv('ACCESS_TOKEN'),
         triggerToken: getEnv('TRIGGER_TOKEN'),
         projectId: getEnv('PROJECT_ID'),
         triggeredRef: getEnv('TRIGGERED_REF'),
@@ -187,7 +187,7 @@ if (github.context.sha) {
     // This is executed when running locally and can be used for testing
     const inputConfig = {
         apiUrl: '',
-        accesToken: '',
+        accessToken: '',
         triggerToken: '',
         projectId: '',
         triggeredRef: '',
