@@ -21,6 +21,11 @@ on:
         required: false
         type: string
         default: ""
+      pipeline-type:
+        description: 'Option to define which specific pipeline to run. I.e. performance'
+        required: false
+        default: ""
+        type: string
     secrets:
       ci-api-v4-url:
         description: 'GitLab API v4 root URL'
@@ -79,3 +84,4 @@ jobs:
           TRIGGER_TOKEN: ${{ secrets.trigger-token }}
           PROJECT_ID: ${{ secrets.project-id }}
           GITHUB_SHA_OVERRIDE: ${{ inputs.github-sha-override }}
+          PIPELINE_TYPE: ${{ inputs.pipeline-type }}
