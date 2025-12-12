@@ -97,6 +97,7 @@ class GitlabClient {
         url.searchParams.append('variables[GITHUB_REPO]', this.githubConfig.githubRepo);
         url.searchParams.append('variables[GITHUB_SHA]', this.githubConfig.githubSha);
         url.searchParams.append('variables[GITHUB_SCHEDULE]', this.inputConfig.schedule);
+        url.searchParams.append('variables[PIPELINE_TYPE]', this.inputConfig.pipelineType);
 
         return await this.post(url);
     }
@@ -145,7 +146,8 @@ async function main () {
         triggeredRef: getEnv('TRIGGERED_REF'),
         schedule: getBooleanEnv('SCHEDULE'),
         cancelOutdatedPipelines: getBooleanEnv('CANCEL_OUTDATED_PIPELINES'),
-        githubShaOverride: getOptionalEnv('GITHUB_SHA_OVERRIDE')
+        githubShaOverride: getOptionalEnv('GITHUB_SHA_OVERRIDE'),
+        pipelineType: getOptionalEnv('PIPELINE_TYPE')
     };
 
     const githubConfig = {
@@ -192,7 +194,8 @@ if (github.context.sha) {
         projectId: '',
         triggeredRef: '',
         schedule: false,
-        cancelOutdatedPipelines: true
+        cancelOutdatedPipelines: true,
+        pipelineType: ''
     };
 
     const githubConfig = {
