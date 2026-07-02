@@ -43,17 +43,24 @@ class GitlabClient {
         return await this.request('POST', url, data);
     }
 
-    async fetchRunningPipelinesIds () {
+    async fetchCancelablePipelinesIds () {
         const fourHoursBefore = new Date();
         fourHoursBefore.setHours(fourHoursBefore.getHours() - 4);
 
-        const url = new URL(`projects/${this.inputConfig.projectId}/pipelines`, this.inputConfig.apiUrl);
-        url.searchParams.append('ref', this.inputConfig.triggeredRef);
-        url.searchParams.append('status', 'running');
-        url.searchParams.append('per_page', '100');
-        url.searchParams.append('updated_after', fourHoursBefore.toISOString());
+        // 'created' and 'pending' pipelines are the ones stuck in the runner
+        // queue; cancelling only 'running' ones lets outdated pipelines pile
+        // up exactly when runners are congested.
+        const statuses = ['created', 'waiting_for_resource', 'pending', 'running'];
+        const requests = statuses.map(status => {
+            const url = new URL(`projects/${this.inputConfig.projectId}/pipelines`, this.inputConfig.apiUrl);
+            url.searchParams.append('ref', this.inputConfig.triggeredRef);
+            url.searchParams.append('status', status);
+            url.searchParams.append('per_page', '100');
+            url.searchParams.append('updated_after', fourHoursBefore.toISOString());
+            return this.get(url);
+        });
 
-        const pipelines = await this.get(url);
+        const pipelines = (await Promise.all(requests)).flat();
         return pipelines.map(pipeline => pipeline.id);
     }
 
@@ -107,7 +114,7 @@ async function execute (inputConfig, githubConfig) {
     const gitlabClient = new GitlabClient(inputConfig, githubConfig);
 
     if (inputConfig.cancelOutdatedPipelines) {
-        const pipelineIds = await gitlabClient.fetchRunningPipelinesIds();
+        const pipelineIds = await gitlabClient.fetchCancelablePipelinesIds();
         const filteredPipelineIds = await gitlabClient.filterPipelinesByGithubRef(pipelineIds);
         await gitlabClient.cancelPreviousPipelines(filteredPipelineIds);
     }
