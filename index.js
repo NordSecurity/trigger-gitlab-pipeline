@@ -94,17 +94,27 @@ class GitlabClient {
         await Promise.all(requests);
     }
 
+    buildVariables () {
+        return {
+            GITHUB_REF_NAME: this.githubConfig.githubRefName,
+            GITHUB_REF_TYPE: this.githubConfig.githubRefType,
+            GITHUB_REPO: this.githubConfig.githubRepo,
+            GITHUB_SHA: this.githubConfig.githubSha,
+            GITHUB_SCHEDULE: this.inputConfig.schedule,
+            PIPELINE_TYPE: this.inputConfig.pipelineType,
+            ...this.inputConfig.variables
+        };
+    }
+
     async triggerPipeline () {
         const url = new URL(`projects/${this.inputConfig.projectId}/trigger/pipeline`, this.inputConfig.apiUrl);
 
         url.searchParams.append('token', this.inputConfig.triggerToken);
         url.searchParams.append('ref', this.inputConfig.triggeredRef);
-        url.searchParams.append('variables[GITHUB_REF_NAME]', this.githubConfig.githubRefName);
-        url.searchParams.append('variables[GITHUB_REF_TYPE]', this.githubConfig.githubRefType);
-        url.searchParams.append('variables[GITHUB_REPO]', this.githubConfig.githubRepo);
-        url.searchParams.append('variables[GITHUB_SHA]', this.githubConfig.githubSha);
-        url.searchParams.append('variables[GITHUB_SCHEDULE]', this.inputConfig.schedule);
-        url.searchParams.append('variables[PIPELINE_TYPE]', this.inputConfig.pipelineType);
+
+        for (const [key, value] of Object.entries(this.buildVariables())) {
+            url.searchParams.append(`variables[${key}]`, value);
+        }
 
         return await this.post(url);
     }
@@ -135,6 +145,24 @@ function getOptionalEnv (name) {
     return process.env[name] || '';
 }
 
+function getVariablesEnv (name) {
+    const variables = {};
+
+    for (const line of getOptionalEnv(name).split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        const separator = trimmed.indexOf('=');
+        if (separator < 1) {
+            throw new Error(`Malformed variable, expected KEY=VALUE: ${trimmed}`);
+        }
+
+        variables[trimmed.slice(0, separator)] = trimmed.slice(separator + 1);
+    }
+
+    return variables;
+}
+
 function getBooleanEnv (name) {
     const trueValue = ['true', 'True', 'TRUE'];
     const falseValue = ['false', 'False', 'FALSE'];
@@ -154,7 +182,8 @@ async function main () {
         schedule: getBooleanEnv('SCHEDULE'),
         cancelOutdatedPipelines: getBooleanEnv('CANCEL_OUTDATED_PIPELINES'),
         githubShaOverride: getOptionalEnv('GITHUB_SHA_OVERRIDE'),
-        pipelineType: getOptionalEnv('PIPELINE_TYPE')
+        pipelineType: getOptionalEnv('PIPELINE_TYPE'),
+        variables: getVariablesEnv('VARIABLES')
     };
 
     const githubConfig = {
@@ -202,7 +231,8 @@ if (github.context.sha) {
         triggeredRef: '',
         schedule: false,
         cancelOutdatedPipelines: true,
-        pipelineType: ''
+        pipelineType: '',
+        variables: {}
     };
 
     const githubConfig = {
