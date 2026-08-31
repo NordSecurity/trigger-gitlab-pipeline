@@ -4,6 +4,15 @@ const core = require('@actions/core');
 const github = require('@actions/github');
 const http = require('@actions/http-client');
 
+const ALWAYS_SENT_VARIABLES = [
+    'GITHUB_REF_NAME',
+    'GITHUB_REF_TYPE',
+    'GITHUB_REPO',
+    'GITHUB_SHA',
+    'GITHUB_SCHEDULE',
+    'PIPELINE_TYPE'
+];
+
 class GitlabClient {
     constructor (inputConfig, githubConfig) {
         this.inputConfig = inputConfig;
@@ -106,6 +115,10 @@ class GitlabClient {
         url.searchParams.append('variables[GITHUB_SCHEDULE]', this.inputConfig.schedule);
         url.searchParams.append('variables[PIPELINE_TYPE]', this.inputConfig.pipelineType);
 
+        for (const [key, value] of Object.entries(this.inputConfig.variables)) {
+            url.searchParams.append(`variables[${key}]`, value);
+        }
+
         return await this.post(url);
     }
 }
@@ -135,6 +148,29 @@ function getOptionalEnv (name) {
     return process.env[name] || '';
 }
 
+function getVariablesEnv (name) {
+    const variables = {};
+
+    for (const line of getOptionalEnv(name).split('\n')) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        const separator = trimmed.indexOf('=');
+        if (separator < 1) {
+            throw new Error(`Malformed variable, expected KEY=VALUE: ${trimmed}`);
+        }
+
+        const key = trimmed.slice(0, separator).trim();
+        if (ALWAYS_SENT_VARIABLES.includes(key)) {
+            throw new Error(`${key} is always sent by the action and cannot be overridden`);
+        }
+
+        variables[key] = trimmed.slice(separator + 1).trim();
+    }
+
+    return variables;
+}
+
 function getBooleanEnv (name) {
     const trueValue = ['true', 'True', 'TRUE'];
     const falseValue = ['false', 'False', 'FALSE'];
@@ -154,7 +190,8 @@ async function main () {
         schedule: getBooleanEnv('SCHEDULE'),
         cancelOutdatedPipelines: getBooleanEnv('CANCEL_OUTDATED_PIPELINES'),
         githubShaOverride: getOptionalEnv('GITHUB_SHA_OVERRIDE'),
-        pipelineType: getOptionalEnv('PIPELINE_TYPE')
+        pipelineType: getOptionalEnv('PIPELINE_TYPE'),
+        variables: getVariablesEnv('VARIABLES')
     };
 
     const githubConfig = {
@@ -202,7 +239,8 @@ if (github.context.sha) {
         triggeredRef: '',
         schedule: false,
         cancelOutdatedPipelines: true,
-        pipelineType: ''
+        pipelineType: '',
+        variables: {}
     };
 
     const githubConfig = {
