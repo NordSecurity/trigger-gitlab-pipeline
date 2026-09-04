@@ -94,25 +94,20 @@ class GitlabClient {
         await Promise.all(requests);
     }
 
-    buildVariables () {
-        return {
-            GITHUB_REF_NAME: this.githubConfig.githubRefName,
-            GITHUB_REF_TYPE: this.githubConfig.githubRefType,
-            GITHUB_REPO: this.githubConfig.githubRepo,
-            GITHUB_SHA: this.githubConfig.githubSha,
-            GITHUB_SCHEDULE: this.inputConfig.schedule,
-            PIPELINE_TYPE: this.inputConfig.pipelineType,
-            ...this.inputConfig.variables
-        };
-    }
-
     async triggerPipeline () {
         const url = new URL(`projects/${this.inputConfig.projectId}/trigger/pipeline`, this.inputConfig.apiUrl);
 
         url.searchParams.append('token', this.inputConfig.triggerToken);
         url.searchParams.append('ref', this.inputConfig.triggeredRef);
 
-        for (const [key, value] of Object.entries(this.buildVariables())) {
+        url.searchParams.append('variables[GITHUB_REF_NAME]', this.githubConfig.githubRefName);
+        url.searchParams.append('variables[GITHUB_REF_TYPE]', this.githubConfig.githubRefType);
+        url.searchParams.append('variables[GITHUB_REPO]', this.githubConfig.githubRepo);
+        url.searchParams.append('variables[GITHUB_SHA]', this.githubConfig.githubSha);
+        url.searchParams.append('variables[GITHUB_SCHEDULE]', this.inputConfig.schedule);
+        url.searchParams.append('variables[PIPELINE_TYPE]', this.inputConfig.pipelineType);
+
+        for (const [key, value] of Object.entries(this.inputConfig.variables)) {
             url.searchParams.append(`variables[${key}]`, value);
         }
 

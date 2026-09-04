@@ -40,7 +40,9 @@ Instructions on creating trigger tokens: https://docs.gitlab.com/ee/ci/triggers/
 
 ### `variables`
 
-**Optional** Extra pipeline variables, one `KEY=VALUE` per line, passed through to the triggered pipeline alongside the ones this action always sends (`GITHUB_REF_NAME`, `GITHUB_REF_TYPE`, `GITHUB_REPO`, `GITHUB_SHA`, `GITHUB_SCHEDULE`, `PIPELINE_TYPE`). A key given here overrides the default of the same name. A line without `=` fails the run.
+**Optional** Extra pipeline variables, one `KEY=VALUE` per line, passed through to the triggered pipeline. A line without `=` fails the run.
+
+Do not reuse variables names existing in trigger-gitlab-pipeline.yml.
 
 ```yaml
       variables: |
