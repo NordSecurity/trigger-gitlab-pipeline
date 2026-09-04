@@ -26,6 +26,11 @@ on:
         required: false
         default: ""
         type: string
+      variables:
+        description: 'Extra pipeline variables, one KEY=VALUE per line. Overrides a default of the same name.'
+        required: false
+        default: ""
+        type: string
     secrets:
       ci-api-v4-url:
         description: 'GitLab API v4 root URL'
@@ -84,4 +89,5 @@ jobs:
           TRIGGER_TOKEN: ${{ secrets.trigger-token }}
           PROJECT_ID: ${{ secrets.project-id }}
           GITHUB_SHA_OVERRIDE: ${{ inputs.github-sha-override }}
+          VARIABLES: ${{ inputs.variables }}
           PIPELINE_TYPE: ${{ inputs.pipeline-type }}

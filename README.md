@@ -38,6 +38,18 @@ Instructions on creating trigger tokens: https://docs.gitlab.com/ee/ci/triggers/
 
 **Optional** **[Default: true]** If set to true, it will cancel previous pipelines that are running for the same reference.
 
+### `variables`
+
+**Optional** Extra pipeline variables, one `KEY=VALUE` per line, passed through to the triggered pipeline. A line without `=` fails the run.
+
+Do not reuse variables names existing in trigger-gitlab-pipeline.yml.
+
+```yaml
+      variables: |
+        GITHUB_RUN_ID=${{ github.run_id }}
+        BUILD_TAG=${{ needs.compute-tag.outputs.build_tag }}
+```
+
 ## Outputs
 
 None.
